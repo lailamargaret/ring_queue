@@ -27,8 +27,6 @@ class RingQueue {
 public:
 	class iterator;
 
-
-
 	// Aliases. 
 	typedef ItemType* pointer;
 	typedef ItemType& reference;
@@ -48,7 +46,7 @@ public:
 		int offset;
 
 	private:  // Private constructor???
-		iterator(RingQueue* _parent, int _offset = 0)
+		iterator(RingQueue* _parent, int _offset = 0) 
 			: parent(_parent), offset(_offset) { }
 
 
@@ -59,35 +57,34 @@ public:
 
 	public:
 		reference operator*() {
-			// Replace the line(s) below with your code.
-			return parent->buffer[0];
+			int current = (parent->begin_index + offset) % MAX_SIZE;
+			return parent->buffer[current];
 		}
 
 		iterator& operator++() {
-			// Replace the line(s) below with your code.
+			offset += 1;
 			return *this;
 		}
 
 		iterator operator++(int unused) {
-			// Replace the line(s) below with your code.
-			return *this;
+			iterator copy = *this;
+			++(*this);
+			return copy;
 		}
 
 		bool operator==(const iterator& rhs) const {
-			// Replace the line(s) below with your code.
-			return true;
+			return (parent == rhs.parent && offset == rhs.offset);
 		}
 
 		bool operator!=(const iterator& rhs) const {
-			// Replace the line(s) below with your code.
-			return true;
+			//return !(*this = rhs);
+			return (parent != rhs.parent || offset != rhs.offset);
 		}
 
 	};
 
 
-
-	/**
+	/*
 	class const_iterator{
 	private:
 	RingQueue* parent;
@@ -126,13 +123,12 @@ private:
 	// its capacity. 
 	int ring_size;
 
-
-
 	// A helper function that computes the index of 'the end'
 	// of the RingQueue
 	int end_index() const {
 		// Replace the line(s) below with your code.
-		return begin_index;
+		int end = (begin_index + ring_size) % MAX_SIZE;
+		return end;
 	}
 
 
@@ -143,48 +139,53 @@ public:
 
 	// Accessors. Note: 'back()' is not considered part of the array.
 	ItemType front() const {
-		if (ring_size == 0) std::cerr << "Warning: Empty ring!\n";
-		// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-		// Feel free to throw instead...
-
-
-		// Replace the line(s) below with your code.
-		return buffer[0];
+		if (ring_size == 0) {
+			throw std::cerr << "Warning: Empty ring!\n";;
+		}
+		else return buffer[begin_index()];
 	}
+	
 	ItemType back() const {
-		if (ring_size == 0) std::cerr << "Warning: Empty ring!\n";
-		// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-		// Feel free to throw instead...
+		if (ring_size == 0) {
+			throw std::cerr << "Warning: Empty ring!\n";
+		}
 
-
-		// Replace the line(s) below with your code.
-		return buffer[0];
+		else return buffer[end_index()];
 	}
-
 
 
 	// Mutators
 	void push_back(const ItemType& value) {
-		return;
+		buffer[end_index()] = value;
+		if (ring_size < MAX_SIZE) ++ring_size;
+		else {
+			int temp = (begin_index++) % MAX_SIZE;
+			begin_index = temp;
+		}
 	}
+	
+	//Brent's operator??
 	void pop_front() {
-		return;
+		--ring_size;
+		++begin_index;
+		//begin_index() = (begin_index() < MAX_SIZE - 1) ? begin_index() + 1 : 0;
 	}
 
 	// Functions that return iterators
-	iterator begin() {
+	//this is a ring queue that is the parent
+	iterator begin()  {
 		// Replace the line(s) below with your code.
-		return iterator(this, 0);
+		return iterator(this, begin_index);
 	}
-	iterator end() {
+	iterator end()  {
 		// Replace the line(s) below with your code.
-		return iterator(this, 0);
+		return iterator(this, begin_index + (ring_size ));
+		//return iterator(this, 0);
 	}
 
 	// Miscellaneous functions
 	size_t size() const {
-		// Replace the line(s) below with your code.
-		return 0;
+		return ring_size - begin_index + 1;
 	}
 
 	// Debugging functions
@@ -224,13 +225,14 @@ int main() {
 	// implementation of RingQueue<ItemType,int>::end(). 
 	// If the implementation is not correct, it might result in 
 	// an infinite loop.
-	/**
+	
+	
 	std::cout << "Queue via iterators: \n";
 	for ( auto it = rq.begin() ; it != rq.end() ; ++it ) {
 	std::cout << "Value: " << *it << ", address: " << &(*it) << '\n';
 	}
 	std::cout << '\n';
-	*/
+	
 
 
 
